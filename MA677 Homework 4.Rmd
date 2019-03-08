@@ -1,0 +1,76 @@
+---
+title: "MA677 Homework"
+author: "Andrew Zhang"
+date: "3/7/2019"
+output: pdf_document
+---
+
+## Problem 1
+```{r}
+maybe_unif <- data.frame(value = c(0.42, 0.06, 0.88, 0.40, 0.90, 0.38, 0.78, 0.71, 0.57, 0.66, 0.48, 0.35, 0.16, 0.22, 0.08, 0.11, 0.29, 0.79, 0.75, 0.82, 0.30, 0.23, 0.01, 0.41, 0.09))
+chisq.test(maybe_unif)
+```
+## The p-value is extremely large so we cannot reject the null hypothesis and cannot conclude this is a uniform distribution.
+## It seems like the model given may be better as it contains uniform values amongst the varying ranges. 
+
+## Problem 2
+```{r}
+maybe_norm <- read.delim("/Users/andrewzhang/Downloads/maybe_normal.txt", header = FALSE, sep = " ")
+maybe_norm <- stack(maybe_norm)
+maybe_norm$ind <- NULL
+
+mean(maybe_norm$values)
+sd(maybe_norm$values)
+
+qqplot(range(1, nrow(maybe_norm)), maybe_norm$values)
+hist(maybe_norm$values)
+```
+
+## Problem 3
+```{r}
+maybe_same1 <- data.frame(value = c(0.61, 0.29, 0.06, 0.59, -1.73, -0.74, 0.51, -0.56, -0.39, 1.64, 0.05, -0.06, 0.64, -0.82, 0.31, 1.77, 1.09, -1.28, 2.36, 1.31, 1.05, -0.32, -0.40, 1.06, -2.47))
+maybe_same2 <- data.frame(value = c(2.20, 1.66, 1.38, 0.20, 0.36, 0.00, 0.96 ,1.56, 0.44, 1.50, -0.30 ,0.66, 2.31, 3.29, -0.27, -0.37, 0.38, 0.70, 0.52, -0.71))
+
+ks.test(maybe_same1$value, maybe_same2$value)
+
+thresh1 <- 1.224 * sqrt((nrow(maybe_same1) + nrow(maybe_same2))/(nrow(maybe_same1)*nrow(maybe_same2)))
+thresh1
+```
+## Since D from the ks.test is not bigger than the critical value, we cannot reject the null hypothesis and cannot conclude these two samples are form the same distribution.
+
+## Problem 4
+```{r}
+norm_samp <- readRDS("/Users/andrewzhang/Downloads/norm_sample.Rdata")
+ecdf(scale(norm_samp))
+ks.test(scale(norm_samp), norm_samp)
+
+thresh2 <- 1.224 * sqrt((length(scale(norm_samp)) + length(norm_samp))/(length(scale(norm_samp))*length(norm_samp)))
+thresh2
+```
+## Here we can see that D is less than the critical value, so we cannot reject the null hypothesis and cannot conlcude these samples are of the same distribution.
+
+## Problem 5
+```{r}
+faith <- read.table("/Users/andrewzhang/Downloads/faithful(1).dat", fill = TRUE)
+faith <- faith[16:nrow(faith),]
+faith$V2 <- as.numeric(faith$V2)
+faith[4:10] <- NULL
+fiji <- read.table("/Users/andrewzhang/Downloads/fijiquakes(1).dat", fill = TRUE, header = TRUE)
+
+ecdf(faith$V2)
+ecdf(fiji$mag)
+
+CI1 <- mean(faith$V2) - 1.645 * (sd(faith$V2)/length(faith$V2))
+CI2 <- mean(faith$V2) + 1.645 * (sd(faith$V2)/length(faith$V2))
+CI <- c(CI1, CI2)
+CI
+
+mag49 <- fiji[fiji$mag == 4.9, ]
+mag43 <- fiji[fiji$mag == 4.3, ]
+magCI1 <- mean(mag49$depth) - mean(mag43$depth) - 1.96 * (sqrt(var(mag49$depth) + var(mag43$depth))/nrow(mag49))
+magCI2 <- mean(mag49$depth) - mean(mag43$depth) + 1.96 * (sqrt(var(mag49$depth) + var(mag43$depth))/nrow(mag49))
+CI_mag <- c(magCI1, magCI2)
+CI_mag
+```
+
+```
